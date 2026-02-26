@@ -231,10 +231,6 @@
         // Initialize Lucide Icons
         lucide.createIcons();
 
-        // Environment Details
-        // IMPORTANT: Paste your DigitalOcean API key between the quotes below before deploying!
-        const apiKey = "AIzaSyDOuX2kAo5CnG-dqOTNYcwVNNezrJbepqg"; 
-
         // State variables
         let tasks = [];
         let bossMessage = "";
@@ -311,14 +307,15 @@
             }, 4000);
         }
 
-        // --- API Utility ---
-        async function fetchWithRetry(url, options, retries = 5) {
+        // --- Keyless API Utility (Pollinations AI) ---
+        // We use .text() instead of .json() because Pollinations returns raw strings directly
+        async function fetchTextWithRetry(url, options, retries = 3) {
             let delay = 1000;
             for (let i = 0; i < retries; i++) {
                 try {
                     const response = await fetch(url, options);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return await response.json();
+                    return await response.text();
                 } catch (error) {
                     if (i === retries - 1) throw error;
                     await new Promise(res => setTimeout(res, delay));
@@ -495,7 +492,7 @@
             copyToClipboard(bossMessage, () => showStatus("Copied to clipboard!"));
         });
 
-        // --- AI Integrations ---
+        // --- AI Integrations (Keyless Pollinations AI) ---
         extractBtn.addEventListener('click', async () => {
             const inputText = extractInput.value.trim();
             if (!inputText) {
@@ -509,31 +506,24 @@
             extractLoading.classList.remove('hidden');
 
             try {
-                // MODEL UPDATED TO: gemini-1.5-flash
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const url = `https://text.pollinations.ai/`;
+                const promptText = `Extract a list of actionable tasks or to-dos from the following text. You MUST output ONLY a valid JSON object in this exact format: {"tasks": ["Task 1", "Task 2"]}. Do not wrap in markdown or add any other text.\n\nText: ${inputText}`;
+                
                 const payload = {
-                    contents: [{ parts: [{ text: `Extract a list of actionable tasks or to-dos from the following text. Be concise.\n\nText: ${inputText}` }] }],
-                    generationConfig: {
-                        responseMimeType: "application/json",
-                        responseSchema: {
-                            type: "OBJECT",
-                            properties: {
-                                tasks: {
-                                    type: "ARRAY",
-                                    items: { type: "STRING" }
-                                }
-                            }
-                        }
-                    }
+                    messages: [{ role: "user", content: promptText }],
+                    model: "openai", // Uses GPT-4o-mini natively
+                    jsonMode: true
                 };
 
-                const result = await fetchWithRetry(url, {
+                const resultText = await fetchTextWithRetry(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                const extractedData = JSON.parse(result.candidates[0].content.parts[0].text);
+                // Clean up any markdown codeblocks just in case the AI wraps the response
+                let cleanText = resultText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const extractedData = JSON.parse(cleanText);
                 const newTasks = extractedData.tasks || [];
 
                 if (newTasks.length === 0) {
@@ -572,19 +562,21 @@
             const taskListString = completedTasks.map(t => `- ${t.text}`).join('\n');
 
             try {
-                // MODEL UPDATED TO: gemini-1.5-flash
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                const url = `https://text.pollinations.ai/`;
+                const promptText = `Write a short, professional update for a boss. I have finished these tasks:\n${taskListString}\n\nKeep it direct and friendly.`;
+                
                 const payload = {
-                    contents: [{ parts: [{ text: `Write a short, professional update for a boss. I have finished these tasks:\n${taskListString}\n\nKeep it direct and friendly.` }] }]
+                    messages: [{ role: "user", content: promptText }],
+                    model: "openai"
                 };
 
-                const result = await fetchWithRetry(url, {
+                const resultText = await fetchTextWithRetry(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                bossMessage = result.candidates[0].content.parts[0].text.trim();
+                bossMessage = resultText.trim();
                 
                 // Update UI
                 bossMessageTextEl.textContent = bossMessage;
