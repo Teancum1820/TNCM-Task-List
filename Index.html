@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Task Console</title>
+    
+    <!-- Google Fonts: Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex items-center justify-center p-4 sm:p-8 text-gray-700 selection:bg-[#72c5e8] selection:text-white overflow-hidden bg-black">
+
+    <!-- Image Background -->
+    <div 
+        class="absolute inset-0 z-0 pointer-events-none bg-cover bg-center bg-no-repeat"
+        style="background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/48f579b9-0d56-481a-a9b4-d61ef9364197/dcm4v1f-fb64b6d1-30d8-454e-8208-f0c384eb00c1.png/v1/fill/w_1131,h_707,q_70,strp/wii_menu_wallpaper_by_winkeyctrlr_dcm4v1f-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9ODAwIiwicGF0aCI6Ii9mLzQ4ZjU3OWI5LTBkNTYtNDgxYS1hOWI0LWQ2MWVmOTM2NDE5Ny9kY200djFmLWZiNjRiNmQxLTMwZDgtNDU0ZS04MjA4LWYwYzM4NGViMDBjMS5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.AE5-AGSC0ayLczBRcUdgArdSN2Kohjap0z4HCR-dKt4');"
+    ></div>
+
+    <!-- Console Outer Hardware Wrapper -->
+    <div class="relative z-10 bg-[#f2f4f5]/85 backdrop-blur-md rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5),inset_0_-5px_15px_rgba(0,0,0,0.1),inset_0_5px_15px_rgba(255,255,255,1)] p-4 sm:p-5 w-full max-w-4xl border-2 border-[#dde2e6]">
+        
+        <!-- Hardware Logo -->
+        <div class="absolute top-3 left-1/2 -translate-x-1/2">
+            <img 
+                src="https://wp.logos-download.com/wp-content/uploads/2016/06/Nintendo_logo_gray.png" 
+                alt="Nintendo Logo" 
+                class="h-4 sm:h-5 object-contain opacity-60 mix-blend-multiply"
+            />
+        </div>
+
+        <!-- The Actual Screen Border -->
+        <div class="bg-[#1a1c1e] rounded-[1.5rem] p-3 sm:p-4 shadow-[inset_0_5px_20px_rgba(0,0,0,0.8)] border-[3px] border-[#333] relative mt-4 h-[65vh] min-h-[500px] flex flex-col">
+            
+            <!-- Software Screen Background -->
+            <div class="flex-1 bg-white rounded-xl overflow-hidden shadow-[inset_0_0_10px_rgba(0,0,0,0.1)] flex flex-col relative border-[4px] border-[#e2e8f0]">
+                
+                <!-- Console OS Status Bar -->
+                <div class="bg-white/95 backdrop-blur-sm px-4 py-2 flex justify-between items-center text-[12px] font-bold text-gray-500 border-b border-gray-200 z-10 shadow-sm transition-all duration-300">
+                    <div class="flex items-center space-x-3">
+                        <span id="statusMessage" class="hidden items-center space-x-1 text-[#3b82f6] animate-pulse">
+                            <i data-lucide="info" class="w-4 h-4"></i>
+                            <span id="statusText" class="drop-shadow-[0_1px_2px_rgba(59,130,246,0.3)]">Status</span>
+                        </span>
+                        <span id="defaultStatus" class="flex text-[#34d399] drop-shadow-[0_1px_2px_rgba(52,211,153,0.4)] transition-all">
+                            Internet
+                        </span>
+                        
+                        <span class="hidden sm:flex items-center space-x-1 bg-[#ffed4a] text-yellow-700 px-2 py-0.5 rounded-full text-[10px] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] border border-yellow-300">
+                            <i data-lucide="footprints" class="w-3 h-3"></i>
+                            <span id="completedCount">0</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span id="clockDisplay" class="bg-gray-100 px-3 py-0.5 rounded-full border border-gray-200 shadow-inner">12:00 PM</span>
+                        <i data-lucide="battery-full" class="w-6 h-6 text-[#34d399] drop-shadow-[0_1px_2px_rgba(52,211,153,0.4)]"></i>
+                    </div>
+                </div>
+
+                <!-- Main Single Screen Layout -->
+                <div class="flex-1 overflow-y-auto bg-[#f8f9fa] bg-[radial-gradient(#e5e7eb_1px,_transparent_1px)] [background-size:16px_16px] p-3 sm:p-4 lg:p-5">
+                    <div class="flex flex-col md:flex-row gap-5 max-w-full mx-auto h-full">
+                        
+                        <!-- --- LEFT COLUMN: TOOLS & INPUT --- -->
+                        <div class="w-full md:w-5/12 flex flex-col space-y-4">
+                            
+                            <!-- Manual Input Section -->
+                            <div class="bg-white p-3 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.05),inset_0_2px_0_rgba(255,255,255,1)] border border-gray-200 flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    id="newTaskInput"
+                                    placeholder="Type a manual task here..."
+                                    class="flex-1 bg-transparent border-none focus:ring-0 text-sm font-bold text-gray-700 placeholder:text-gray-400 outline-none px-2"
+                                />
+                                <button
+                                    id="addTaskBtn"
+                                    disabled
+                                    class="w-10 h-10 rounded-[12px] bg-gradient-to-b from-[#4ade80] to-[#22c55e] border-2 border-[#16a34a] shadow-[0_4px_6px_rgba(34,197,94,0.3),inset_0_2px_0_rgba(255,255,255,0.4)] flex items-center justify-center text-white disabled:opacity-50 active:translate-y-[2px] active:shadow-none transition-all"
+                                >
+                                    <i data-lucide="plus" class="w-6 h-6 stroke-[3]"></i>
+                                </button>
+                            </div>
+
+                            <!-- AI Extraction Section -->
+                            <div class="bg-white p-4 rounded-[1.5rem] shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-gray-200 flex flex-col">
+                                <div class="flex items-center space-x-2 mb-4 text-gray-600 font-bold text-sm">
+                                    <i data-lucide="align-left" class="w-5 h-5 text-[#f59e0b]"></i>
+                                    <span>AI Extractor</span>
+                                </div>
+                                
+                                <!-- Glossy Touch-style notepad -->
+                                <div class="bg-[#fffbeb] h-32 rounded-2xl border-2 border-[#fcd34d] p-3 shadow-inner relative mb-4">
+                                    <div class="absolute inset-0 pointer-events-none rounded-2xl overflow-hidden opacity-20" style="background-image: repeating-linear-gradient(transparent, transparent 23px, #f59e0b 23px, #f59e0b 24px)"></div>
+                                    <textarea
+                                        id="extractInput"
+                                        placeholder="Paste an email or messy message block here..."
+                                        class="w-full h-full bg-transparent resize-none outline-none text-sm font-medium text-gray-800 relative z-10 leading-[24px]"
+                                    ></textarea>
+                                </div>
+
+                                <!-- Big Bubbly Yellow Action Button -->
+                                <button
+                                    id="extractBtn"
+                                    disabled
+                                    class="w-full py-4 rounded-[1.25rem] bg-gradient-to-b from-[#fcd34d] to-[#f59e0b] border-[3px] border-[#d97706] shadow-[0_6px_15px_rgba(245,158,11,0.3),inset_0_3px_0_rgba(255,255,255,0.6)] flex items-center justify-center space-x-2 text-[#78350f] font-extrabold text-[15px] active:translate-y-[4px] active:shadow-[inset_0_3px_0_rgba(255,255,255,0.2)] disabled:opacity-60 transition-all"
+                                >
+                                    <span id="extractIcon"><i data-lucide="sparkles" class="w-6 h-6"></i></span>
+                                    <span id="extractLoading" class="hidden"><i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i></span>
+                                    <span>PULL TASKS</span>
+                                </button>
+                            </div>
+
+                            <!-- AI Generate Section -->
+                            <div class="bg-white p-4 rounded-[1.5rem] shadow-[0_4px_15px_rgba(0,0,0,0.05)] border border-gray-200">
+                                <div class="flex items-center space-x-2 mb-4 text-gray-600 font-bold text-sm">
+                                    <i data-lucide="briefcase" class="w-5 h-5 text-[#8b5cf6]"></i>
+                                    <span>Boss Comms</span>
+                                </div>
+                                
+                                <button
+                                    id="generateBtn"
+                                    disabled
+                                    class="w-full py-4 rounded-[1.25rem] bg-gradient-to-b from-[#c4b5fd] to-[#8b5cf6] border-[3px] border-[#6d28d9] shadow-[0_6px_15px_rgba(139,92,246,0.3),inset_0_3px_0_rgba(255,255,255,0.6)] flex items-center justify-center space-x-2 text-white font-extrabold text-[15px] active:translate-y-[4px] active:shadow-[inset_0_3px_0_rgba(255,255,255,0.2)] disabled:from-[#e5e7eb] disabled:to-[#d1d5db] disabled:border-[#9ca3af] disabled:text-gray-500 disabled:shadow-none transition-all"
+                                >
+                                    <span id="generateIcon"><i data-lucide="send" class="w-6 h-6"></i></span>
+                                    <span id="generateLoading" class="hidden"><i data-lucide="loader-2" class="w-6 h-6 animate-spin"></i></span>
+                                    <span>DRAFT UPDATE</span>
+                                </button>
+
+                                <!-- Boss Message Draft -->
+                                <div id="bossMessageContainer" class="hidden mt-4 bg-white rounded-[1.25rem] p-4 shadow-[0_4px_15px_rgba(0,0,0,0.05)] border-[3px] border-[#72c5e8] relative animate-in slide-in-from-top-4">
+                                    <div class="absolute -top-3.5 left-5 bg-[#72c5e8] text-white text-[11px] font-bold px-4 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                                        Draft Ready
+                                    </div>
+                                    <div id="bossMessageText" class="text-[14px] text-gray-700 mt-2 leading-relaxed whitespace-pre-wrap font-medium">
+                                        <!-- Message content will appear here -->
+                                    </div>
+                                    <button 
+                                        id="copyMessageBtn"
+                                        class="mt-4 w-full bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] border-2 border-[#bae6fd] hover:border-[#7dd3fc] active:from-[#e0f2fe] active:to-[#f0f9ff] text-[#0284c7] font-bold py-2.5 rounded-xl text-sm transition-all shadow-sm flex items-center justify-center space-x-2"
+                                    >
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                        <span>Copy Message</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- --- RIGHT COLUMN: TASKS & DISPLAY --- -->
+                        <div class="w-full md:w-7/12 flex flex-col space-y-4">
+                            
+                            <!-- Header -->
+                            <div class="flex items-center justify-between bg-white px-4 py-3 rounded-2xl shadow-[0_4px_10px_rgba(0,0,0,0.05)] border border-gray-200">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-b from-[#72c5e8] to-[#42a5f5] shadow-[0_4px_10px_rgba(66,165,245,0.4),inset_0_2px_0_rgba(255,255,255,0.6)] flex items-center justify-center border border-[#1e88e5]">
+                                        <i data-lucide="check-circle-2" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                    <h1 class="text-2xl font-extrabold text-gray-700 drop-shadow-[0_2px_0_white]">Task List</h1>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <button 
+                                        id="uploadBtn"
+                                        class="w-9 h-9 rounded-full bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] border-2 border-[#bae6fd] hover:border-[#7dd3fc] text-[#0284c7] flex items-center justify-center shadow-sm active:from-[#e0f2fe] active:to-[#f0f9ff] transition-all" 
+                                        title="Upload Local Save"
+                                    >
+                                        <i data-lucide="upload" class="w-4 h-4"></i>
+                                    </button>
+                                    <button 
+                                        id="downloadBtn"
+                                        class="w-9 h-9 rounded-full bg-gradient-to-b from-[#f0f9ff] to-[#e0f2fe] border-2 border-[#bae6fd] hover:border-[#7dd3fc] text-[#0284c7] flex items-center justify-center shadow-sm active:from-[#e0f2fe] active:to-[#f0f9ff] transition-all" 
+                                        title="Download Local Save"
+                                    >
+                                        <i data-lucide="download" class="w-4 h-4"></i>
+                                    </button>
+                                    <input 
+                                        type="file" 
+                                        id="fileInput"
+                                        accept=".json" 
+                                        class="hidden" 
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Task Items List -->
+                            <div id="taskListContainer" class="flex-1 space-y-3 pb-6">
+                                <!-- Empty State -->
+                                <div id="emptyState" class="text-center py-16 text-gray-400 font-bold bg-white/50 rounded-[2rem] border-[3px] border-dashed border-gray-300 shadow-inner">
+                                    <p class="text-lg">No tasks found.</p>
+                                    <p class="text-[13px] mt-2 font-medium">Use the tools on the left to add some!</p>
+                                </div>
+                                <!-- Dynamic tasks will be injected here -->
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Environment Details
+        const apiKey = ""; // Provided by execution environment
+
+        // State variables
+        let tasks = [];
+        let bossMessage = "";
+        let statusTimeout = null;
+
+        // DOM Elements
+        const clockDisplay = document.getElementById('clockDisplay');
+        const statusMessage = document.getElementById('statusMessage');
+        const defaultStatus = document.getElementById('defaultStatus');
+        const statusText = document.getElementById('statusText');
+        const completedCount = document.getElementById('completedCount');
+        
+        const newTaskInput = document.getElementById('newTaskInput');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        
+        const extractInput = document.getElementById('extractInput');
+        const extractBtn = document.getElementById('extractBtn');
+        const extractIcon = document.getElementById('extractIcon');
+        const extractLoading = document.getElementById('extractLoading');
+        
+        const generateBtn = document.getElementById('generateBtn');
+        const generateIcon = document.getElementById('generateIcon');
+        const generateLoading = document.getElementById('generateLoading');
+        
+        const bossMessageContainer = document.getElementById('bossMessageContainer');
+        const bossMessageTextEl = document.getElementById('bossMessageText');
+        const copyMessageBtn = document.getElementById('copyMessageBtn');
+        
+        const taskListContainer = document.getElementById('taskListContainer');
+        const emptyState = document.getElementById('emptyState');
+        
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // --- Utility: Clock ---
+        function updateTime() {
+            const now = new Date();
+            clockDisplay.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // --- Utility: Copy to Clipboard ---
+        function copyToClipboard(text, onSuccess, onError) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                if (onSuccess) onSuccess();
+            } catch (err) {
+                console.error('Failed to copy', err);
+                if (onError) onError();
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // --- Utility: Status Message ---
+        function showStatus(message) {
+            statusText.textContent = message;
+            statusMessage.classList.remove('hidden');
+            statusMessage.classList.add('flex');
+            defaultStatus.classList.add('hidden');
+            defaultStatus.classList.remove('flex');
+
+            if (statusTimeout) clearTimeout(statusTimeout);
+            statusTimeout = setTimeout(() => {
+                statusMessage.classList.add('hidden');
+                statusMessage.classList.remove('flex');
+                defaultStatus.classList.remove('hidden');
+                defaultStatus.classList.add('flex');
+            }, 4000);
+        }
+
+        // --- API Utility ---
+        async function fetchWithRetry(url, options, retries = 5) {
+            let delay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // --- UI Rendering ---
+        function renderTasks() {
+            // Update counts and button states
+            const countCompleted = tasks.filter(t => t.completed).length;
+            completedCount.textContent = countCompleted;
+            generateBtn.disabled = countCompleted === 0;
+
+            // Handle empty state
+            if (tasks.length === 0) {
+                emptyState.style.display = 'block';
+                // Remove all other children (tasks)
+                Array.from(taskListContainer.children).forEach(child => {
+                    if (child.id !== 'emptyState') child.remove();
+                });
+                return;
+            } else {
+                emptyState.style.display = 'none';
+            }
+
+            // Remove existing task elements to re-render
+            Array.from(taskListContainer.children).forEach(child => {
+                if (child.id !== 'emptyState') child.remove();
+            });
+
+            // Build new task elements
+            tasks.forEach(task => {
+                const taskDiv = document.createElement('div');
+                taskDiv.className = `flex items-center space-x-4 p-4 rounded-[1.25rem] transition-all duration-200 border-[3px] shadow-sm ${
+                    task.completed 
+                        ? 'bg-gray-100 border-gray-200 opacity-60' 
+                        : 'bg-white border-white hover:border-[#bae6fd] shadow-[0_4px_10px_rgba(0,0,0,0.05)]'
+                }`;
+
+                // Toggle Button
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'focus:outline-none shrink-0';
+                toggleBtn.onclick = () => toggleTask(task.id);
+                
+                if (task.completed) {
+                    toggleBtn.innerHTML = '<i data-lucide="check-circle-2" class="w-8 h-8 text-[#4ade80] drop-shadow-[0_2px_4px_rgba(74,222,128,0.3)]"></i>';
+                } else {
+                    toggleBtn.innerHTML = '<div class="w-8 h-8 rounded-full border-[3px] border-gray-300 bg-gray-50 shadow-inner"></div>';
+                }
+
+                // Task Text
+                const textSpan = document.createElement('span');
+                textSpan.className = `flex-1 text-[15px] font-bold pt-0.5 ${task.completed ? 'text-gray-400 line-through' : 'text-gray-700'}`;
+                textSpan.textContent = task.text;
+
+                // Delete Button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'w-10 h-10 shrink-0 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-[#ffe4e6] hover:text-[#fb7185] transition-colors border border-gray-200 shadow-sm';
+                deleteBtn.onclick = () => deleteTask(task.id);
+                deleteBtn.innerHTML = '<i data-lucide="trash-2" class="w-5 h-5"></i>';
+
+                taskDiv.appendChild(toggleBtn);
+                taskDiv.appendChild(textSpan);
+                taskDiv.appendChild(deleteBtn);
+                
+                taskListContainer.appendChild(taskDiv);
+            });
+
+            // Re-initialize icons for newly added DOM elements
+            lucide.createIcons();
+        }
+
+        // --- Task Operations ---
+        function handleAddTask() {
+            const text = newTaskInput.value.trim();
+            if (!text) return;
+            const newTask = { id: crypto.randomUUID(), text: text, completed: false, createdAt: Date.now() };
+            tasks.push(newTask);
+            newTaskInput.value = "";
+            addTaskBtn.disabled = true;
+            renderTasks();
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                if (!task.completed && bossMessage) {
+                    bossMessage = "";
+                    bossMessageContainer.classList.add('hidden');
+                }
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            renderTasks();
+        }
+
+        // --- Event Listeners for Standard Inputs ---
+        newTaskInput.addEventListener('input', (e) => {
+            addTaskBtn.disabled = e.target.value.trim() === "";
+        });
+
+        newTaskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !addTaskBtn.disabled) {
+                handleAddTask();
+            }
+        });
+
+        addTaskBtn.addEventListener('click', handleAddTask);
+
+        extractInput.addEventListener('input', (e) => {
+            extractBtn.disabled = e.target.value.trim() === "";
+        });
+
+        // --- File Operations ---
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const uploadedTasks = JSON.parse(e.target.result);
+                    if (Array.isArray(uploadedTasks)) {
+                        tasks = uploadedTasks;
+                        renderTasks();
+                        showStatus("Tasks loaded from file!");
+                    } else {
+                        showStatus("Invalid file format.");
+                    }
+                } catch (err) {
+                    showStatus("Error reading file.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = null; // reset input
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (tasks.length === 0) {
+                showStatus("No tasks to download.");
+                return;
+            }
+            const dataStr = JSON.stringify(tasks, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const now = new Date();
+            const dateStr = now.getFullYear() + '-' + 
+                String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(now.getDate()).padStart(2, '0') + '_' + 
+                String(now.getHours()).padStart(2, '0') + '-' + 
+                String(now.getMinutes()).padStart(2, '0') + '-' + 
+                String(now.getSeconds()).padStart(2, '0');
+                
+            a.download = `tncm_tasks_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showStatus("Tasks downloaded!");
+        });
+
+        // --- Copy Message Button ---
+        copyMessageBtn.addEventListener('click', () => {
+            copyToClipboard(bossMessage, () => showStatus("Copied to clipboard!"));
+        });
+
+        // --- AI Integrations ---
+        extractBtn.addEventListener('click', async () => {
+            const inputText = extractInput.value.trim();
+            if (!inputText) {
+                showStatus("Paste an email or text first!");
+                return;
+            }
+
+            // Set Loading state
+            extractBtn.disabled = true;
+            extractIcon.classList.add('hidden');
+            extractLoading.classList.remove('hidden');
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: `Extract a list of actionable tasks or to-dos from the following text. Be concise.\n\nText: ${inputText}` }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                tasks: {
+                                    type: "ARRAY",
+                                    items: { type: "STRING" }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                const result = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const extractedData = JSON.parse(result.candidates[0].content.parts[0].text);
+                const newTasks = extractedData.tasks || [];
+
+                if (newTasks.length === 0) {
+                    showStatus("No clear tasks found.");
+                } else {
+                    const formattedTasks = newTasks.map(t => ({ id: crypto.randomUUID(), text: t.trim(), completed: false, createdAt: Date.now() }));
+                    tasks = [...tasks, ...formattedTasks];
+                    renderTasks();
+                    
+                    showStatus(`Extracted ${newTasks.length} tasks!`);
+                    extractInput.value = "";
+                }
+            } catch (error) {
+                console.error("Extraction failed:", error);
+                showStatus("Extraction failed.");
+            } finally {
+                // Reset Loading State
+                extractBtn.disabled = extractInput.value.trim() === "";
+                extractIcon.classList.remove('hidden');
+                extractLoading.classList.add('hidden');
+            }
+        });
+
+        generateBtn.addEventListener('click', async () => {
+            const completedTasks = tasks.filter(t => t.completed);
+            if (completedTasks.length === 0) {
+                showStatus("Check off some tasks first!");
+                return;
+            }
+
+            // Set Loading State
+            generateBtn.disabled = true;
+            generateIcon.classList.add('hidden');
+            generateLoading.classList.remove('hidden');
+
+            const taskListString = completedTasks.map(t => `- ${t.text}`).join('\n');
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: `Write a short, professional update for a boss. I have finished these tasks:\n${taskListString}\n\nKeep it direct and friendly.` }] }]
+                };
+
+                const result = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                bossMessage = result.candidates[0].content.parts[0].text.trim();
+                
+                // Update UI
+                bossMessageTextEl.textContent = bossMessage;
+                bossMessageContainer.classList.remove('hidden');
+                
+                showStatus("Message drafted successfully!");
+            } catch (error) {
+                console.error("Generation failed:", error);
+                showStatus("Failed to draft message.");
+            } finally {
+                // Reset Loading State
+                generateBtn.disabled = false;
+                generateIcon.classList.remove('hidden');
+                generateLoading.classList.add('hidden');
+            }
+        });
+
+        // Initial render trigger
+        renderTasks();
+
+    </script>
+</body>
+</html>
