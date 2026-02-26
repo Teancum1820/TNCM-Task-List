@@ -232,7 +232,8 @@
         lucide.createIcons();
 
         // Environment Details
-        const apiKey = "AIzaSyDOuX2kAo5CnG-dqOTNYcwVNNezrJbepqg"; // Provided by execution environment
+        // IMPORTANT: Paste your DigitalOcean API key between the quotes below before deploying!
+        const apiKey = "AIzaSyDOuX2kAo5CnG-dqOTNYcwVNNezrJbepqg"; 
 
         // State variables
         let tasks = [];
@@ -508,7 +509,8 @@
             extractLoading.classList.remove('hidden');
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                // MODEL UPDATED TO: gemini-1.5-flash
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
                 const payload = {
                     contents: [{ parts: [{ text: `Extract a list of actionable tasks or to-dos from the following text. Be concise.\n\nText: ${inputText}` }] }],
                     generationConfig: {
@@ -570,7 +572,8 @@
             const taskListString = completedTasks.map(t => `- ${t.text}`).join('\n');
 
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                // MODEL UPDATED TO: gemini-1.5-flash
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
                 const payload = {
                     contents: [{ parts: [{ text: `Write a short, professional update for a boss. I have finished these tasks:\n${taskListString}\n\nKeep it direct and friendly.` }] }]
                 };
